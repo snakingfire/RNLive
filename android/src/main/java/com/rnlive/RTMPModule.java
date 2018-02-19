@@ -64,9 +64,9 @@ public class RTMPModule extends ReactContextBaseJavaModule {
 
 
     @ReactMethod
-    public void startPreview() {
+    public void startPreview(Integer camFace) {
         if (rtmpCamera1 != null) {
-            rtmpCamera1.startPreview();
+            rtmpCamera1.startPreview(camFace);
         }
     }
 
@@ -107,7 +107,7 @@ public class RTMPModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void switchCamera(Promise promise) {
-        if (rtmpCamera1 != null && rtmpCamera1.isStreaming()) {
+        if (rtmpCamera1 != null) {
             rtmpCamera1.switchCamera();
             promise.resolve(rtmpCamera1.isStreaming());
         }
