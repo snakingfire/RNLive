@@ -122,7 +122,7 @@ public class RTMPModule extends ReactContextBaseJavaModule {
             }
 
             @Override
-            public void onConnectionFailedRtmp() {
+            public void onConnectionFailedRtmp(String s) {
 
             }
 
