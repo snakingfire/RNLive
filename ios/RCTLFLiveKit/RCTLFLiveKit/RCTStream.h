@@ -7,11 +7,19 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <React/RCTView.h>
 
+@class RCTEventDispatcher;
 @class RCTStreamManager;
 
 @interface RCTStream : UIView
 
-- (id) initWithManager: (RCTStreamManager*) manager bridge:(RCTBridge *) bridge;
+@property (nonatomic, copy) RCTBubblingEventBlock onLiveReady;
+@property (nonatomic, copy) RCTBubblingEventBlock onLivePending;
+@property (nonatomic, copy) RCTBubblingEventBlock onLiveStart;
+@property (nonatomic, copy) RCTBubblingEventBlock onLiveError;
+@property (nonatomic, copy) RCTBubblingEventBlock onLiveStop;
+
+- (instancetype)initWithEventDispatcher:(RCTEventDispatcher *)eventDispatcher NS_DESIGNATED_INITIALIZER;
 
 @end

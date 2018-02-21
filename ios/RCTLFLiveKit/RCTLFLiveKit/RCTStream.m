@@ -6,7 +6,7 @@
 //  Copyright © 2016년 권오빈. All rights reserved.
 //
 
-#import <React/RCTBridge.h>
+#import <React/RCTBridgeModule.h>
 #import "LFLiveSession.h"
 //#import <LFLiveKit/LFLiveSession.h>
 #import "RCTStream.h"
@@ -19,7 +19,6 @@
 @interface RCTStream () <LFLiveSessionDelegate>
 
 @property (nonatomic, weak) RCTStreamManager *manager;
-@property (nonatomic, weak) RCTBridge *bridge;
 @property (nonatomic, strong) LFLiveSession *session;
 @property (nonatomic, strong) UIView *containerView;
 @property (nonatomic, strong) UIButton *startLiveButton;
@@ -31,6 +30,7 @@
     bool _cameraFronted;
     NSString *_url;
     bool _landscape;
+	RCTEventDispatcher *_eventDispatcher;
 }
 
 - (void)insertReactSubview:(UIView *)view atIndex:(NSInteger)atIndex
@@ -57,30 +57,19 @@
     //[UIApplication sharedApplication].idleTimerDisabled = _previousIdleTimerDisabled;
 }
 
-- (id) initWithManager:(RCTStreamManager *)manager bridge:(RCTBridge *)bridge{
-    if ((self = [super init])) {
-        _started = NO;
-        _cameraFronted = YES;
-        self.manager = manager;
-        self.bridge = bridge;
-        self.backgroundColor = [UIColor clearColor];
-        [self requestAccessForVideo];
-        [self requestAccessForAudio];
-        [self addSubview:self.containerView];
-//
-//        [self setTranslatesAutoresizingMaskIntoConstraints:NO];
-//        
-//        NSLayoutConstraint *centerX = [NSLayoutConstraint constraintWithItem:self attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0];
-//        NSLayoutConstraint *centerY = [NSLayoutConstraint constraintWithItem:self attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0];
-//        NSLayoutConstraint *width = [NSLayoutConstraint constraintWithItem:self attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0];
-//        NSLayoutConstraint *height = [NSLayoutConstraint constraintWithItem:self attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeHeight multiplier:1.0 constant:0];
-//        
-//        NSArray *constraints = [NSArray arrayWithObjects:centerX, centerY,width,height, nil];
-//        [self addConstraints: constraints];
-        
-        //[self.containerView addSubview:self.startLiveButton];
-    }
-    return self;
+- (instancetype)initWithEventDispatcher:(RCTEventDispatcher *)eventDispatcher
+{
+	if ((self = [super init])) {
+		_eventDispatcher = eventDispatcher;
+		_started = NO;
+		_cameraFronted = YES;
+		self.backgroundColor = [UIColor clearColor];
+		[self requestAccessForVideo];
+		[self requestAccessForAudio];
+		[self addSubview:self.containerView];
+	}
+
+	return self;
 }
 
 #pragma mark -- Public Method
@@ -141,20 +130,20 @@
     NSLog(@"liveStateDidChange: %ld", state);
     switch (state) {
         case LFLiveReady:
-            [self.bridge.eventDispatcher sendInputEventWithName:@"onReady" body:@{@"target": self.reactTag}];
+			self.onLiveReady(@{@"target": self.reactTag});
             break;
         case LFLivePending:
-            [self.bridge.eventDispatcher sendInputEventWithName:@"onPending" body:@{@"target": self.reactTag}];
-            break;
+			self.onLivePending(@{@"target": self.reactTag});
+			break;
         case LFLiveStart:
-            [self.bridge.eventDispatcher sendInputEventWithName:@"onStart" body:@{@"target": self.reactTag}];
-            break;
+			self.onLiveStart(@{@"target": self.reactTag});
+			break;
         case LFLiveError:
-            [self.bridge.eventDispatcher sendInputEventWithName:@"onError" body:@{@"target": self.reactTag}];
-            break;
+			self.onLiveError(@{@"target": self.reactTag});
+			break;
         case LFLiveStop:
-            [self.bridge.eventDispatcher sendInputEventWithName:@"onStop" body:@{@"target": self.reactTag}];
-            break;
+			self.onLiveStop(@{@"target": self.reactTag});
+			break;
         default:
             break;
     }

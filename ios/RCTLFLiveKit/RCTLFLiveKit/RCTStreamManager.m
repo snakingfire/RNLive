@@ -16,20 +16,11 @@
 
 RCT_EXPORT_MODULE();
 
+@synthesize bridge = _bridge;
+
 - (UIView *) view
 {
-    return [[RCTStream alloc] initWithManager:self bridge:self.bridge];
-}
-
-- (NSArray *) customDirectEventTypes
-{
-    return @[
-             @"onReady",
-             @"onPending",
-             @"onStart",
-             @"onError",
-             @"onStop"
-            ];
+	return [[RCTStream alloc] initWithEventDispatcher:self.bridge.eventDispatcher];
 }
 
 - (dispatch_queue_t)methodQueue
@@ -41,5 +32,11 @@ RCT_EXPORT_VIEW_PROPERTY(started, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(cameraFronted, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(url, NSString);
 RCT_EXPORT_VIEW_PROPERTY(landscape, BOOL);
+
+RCT_EXPORT_VIEW_PROPERTY(onLiveReady, RCTBubblingEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(onLivePending, RCTBubblingEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(onLiveStart, RCTBubblingEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(onLiveError, RCTBubblingEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(onLiveStop, RCTBubblingEventBlock);
 
 @end

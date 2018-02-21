@@ -8,7 +8,6 @@
     "test": "jest"
   },
   "dependencies": {
-    "rn-live-stream": "0.0.1"
   },
   "devDependencies": {
     "babel-jest": "21.2.0",
