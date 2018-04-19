@@ -41,7 +41,7 @@ public class RTMPModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void startStream(String rtmpUrl, Promise promise) {
         if (isSurfaceCreated) {
-            if (rtmpCamera1 != null && !rtmpCamera1.isStreaming() && rtmpCamera1.prepareAudio() && rtmpCamera1.prepareVideo()) {
+            if (rtmpCamera1 != null && !rtmpCamera1.isStreaming() && rtmpCamera1.prepareAudio() && rtmpCamera1.prepareVideo(640, 480, 30, 500000, false, 90)) {
                 rtmpCamera1.startStream(rtmpUrl);
             } else {
                 Toast.makeText(getReactApplicationContext(), "Failed to preparing RTMP builder.", Toast.LENGTH_SHORT).show();
