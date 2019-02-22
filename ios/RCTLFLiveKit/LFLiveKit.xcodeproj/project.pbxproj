@@ -42,7 +42,6 @@
 		956973611D5DCC2100FF600F /* LFGPUImageBeautyFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 956971BE1D5DCC2000FF600F /* LFGPUImageBeautyFilter.m */; };
 		956973621D5DCC2100FF600F /* LFGPUImageEmptyFilter.h in Headers */ = {isa = PBXBuildFile; fileRef = 956971BF1D5DCC2000FF600F /* LFGPUImageEmptyFilter.h */; };
 		956973631D5DCC2100FF600F /* LFGPUImageEmptyFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 956971C01D5DCC2000FF600F /* LFGPUImageEmptyFilter.m */; };
-		956973641D5DCC2100FF600F /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 956971C11D5DCC2000FF600F /* Info.plist */; };
 		956973651D5DCC2100FF600F /* LFLiveKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 956971C21D5DCC2000FF600F /* LFLiveKit.h */; };
 		956973661D5DCC2100FF600F /* LFLiveSession.h in Headers */ = {isa = PBXBuildFile; fileRef = 956971C31D5DCC2000FF600F /* LFLiveSession.h */; };
 		956973671D5DCC2100FF600F /* LFLiveSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 956971C41D5DCC2000FF600F /* LFLiveSession.m */; };
@@ -1700,7 +1699,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				956973641D5DCC2100FF600F /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
