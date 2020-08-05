@@ -17,6 +17,7 @@ public class RTMPModule extends ReactContextBaseJavaModule {
     private static RTMPSurfaceView surfaceView;
     private static RtmpCamera1 rtmpCamera1;
     private static boolean isSurfaceCreated;
+    private static Promise whenReadyPromise;
 
     public RTMPModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -39,9 +40,9 @@ public class RTMPModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void startStream(String rtmpUrl, Promise promise) {
+    public void startStream(String rtmpUrl, Integer width, Integer height, Promise promise) {
         if (isSurfaceCreated) {
-            if (rtmpCamera1 != null && !rtmpCamera1.isStreaming() && rtmpCamera1.prepareAudio() && rtmpCamera1.prepareVideo(640, 480, 30, 500000, false, 90)) {
+            if (rtmpCamera1 != null && !rtmpCamera1.isStreaming() && rtmpCamera1.prepareAudio() && rtmpCamera1.prepareVideo(width, height, 30, 500000, false, 90)) {
                 rtmpCamera1.startStream(rtmpUrl);
             } else {
                 Toast.makeText(getReactApplicationContext(), "Failed to preparing RTMP builder.", Toast.LENGTH_SHORT).show();
@@ -50,7 +51,7 @@ public class RTMPModule extends ReactContextBaseJavaModule {
             Toast.makeText(getReactApplicationContext(), "Surface view is not ready.", Toast.LENGTH_SHORT).show();
         }
 
-        promise.resolve(rtmpCamera1.isStreaming());
+        promise.resolve(rtmpCamera1 != null && rtmpCamera1.isStreaming());
     }
 
     @ReactMethod
@@ -59,7 +60,7 @@ public class RTMPModule extends ReactContextBaseJavaModule {
             rtmpCamera1.stopStream();
         }
 
-        promise.resolve(!rtmpCamera1.isStreaming());
+        promise.resolve(rtmpCamera1 != null && !rtmpCamera1.isStreaming());
     }
 
 
@@ -71,7 +72,7 @@ public class RTMPModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void startPreview(Integer camFace, Integer width, Integer height) {
+    public void startPreviewRatio(Integer camFace, Integer width, Integer height) {
         if (rtmpCamera1 != null) {
             rtmpCamera1.startPreview(camFace, width, height);
         }
@@ -120,6 +121,15 @@ public class RTMPModule extends ReactContextBaseJavaModule {
         }
     }
 
+    @ReactMethod
+    public void onCameraReady(Promise promise) {
+        if (rtmpCamera1 != null) {
+            promise.resolve(true);
+        } else {
+            RTMPModule.whenReadyPromise = promise;
+        }
+    }
+
     public static void setSurfaceView(RTMPSurfaceView surface) {
         surfaceView = surface;
         rtmpCamera1 = new RtmpCamera1(surfaceView, new ConnectCheckerRtmp() {
@@ -150,6 +160,9 @@ public class RTMPModule extends ReactContextBaseJavaModule {
         });
 
         isSurfaceCreated = true;
+        if (whenReadyPromise != null) {
+          whenReadyPromise.resolve(true);
+        }
     }
 
     public static void destroySurfaceView() {
