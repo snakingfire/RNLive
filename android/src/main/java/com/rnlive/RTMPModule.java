@@ -195,9 +195,9 @@ public class RTMPModule extends ReactContextBaseJavaModule {
     public static void destroyTextureView() {
         if (rtmpCamera1 != null && rtmpCamera1.isStreaming()) {
             rtmpCamera1.stopStream();
-            rtmpCamera1 = null;
         }
-
+        rtmpCamera1 = null;
+        textureView = null;
         isSurfaceCreated = false;
     }
 }
