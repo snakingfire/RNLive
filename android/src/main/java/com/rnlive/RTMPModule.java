@@ -6,15 +6,21 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.WritableNativeArray;
+import com.facebook.react.bridge.WritableNativeMap;
 import com.pedro.rtplibrary.rtmp.RtmpCamera1;
+import com.pedro.rtplibrary.view.TakePhotoCallback;
+import com.pedro.encoder.input.video.CameraHelper;
 
 import net.ossrs.rtmp.ConnectCheckerRtmp;
+
+import android.graphics.Bitmap;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class RTMPModule extends ReactContextBaseJavaModule {
-    private static RTMPSurfaceView surfaceView;
+    private static RTMPTextureView textureView;
     private static RtmpCamera1 rtmpCamera1;
     private static boolean isSurfaceCreated;
     private static Promise whenReadyPromise;
@@ -67,14 +73,14 @@ public class RTMPModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void startPreview(Integer camFace) {
         if (rtmpCamera1 != null) {
-            rtmpCamera1.startPreview(camFace);
+            rtmpCamera1.startPreview(camFace == 1 ? CameraHelper.Facing.FRONT : CameraHelper.Facing.BACK);
         }
     }
 
     @ReactMethod
     public void startPreviewRatio(Integer camFace, Integer width, Integer height) {
         if (rtmpCamera1 != null) {
-            rtmpCamera1.startPreview(camFace, width, height);
+            rtmpCamera1.startPreview(camFace == 1 ? CameraHelper.Facing.FRONT : CameraHelper.Facing.BACK, width, height);
         }
     }
 
@@ -82,13 +88,6 @@ public class RTMPModule extends ReactContextBaseJavaModule {
     public void stopPreview() {
         if (rtmpCamera1 != null) {
             rtmpCamera1.stopPreview();
-        }
-    }
-
-    @ReactMethod
-    public void disableVideo() {
-        if (rtmpCamera1 != null && rtmpCamera1.isStreaming()) {
-            rtmpCamera1.disableVideo();
         }
     }
 
@@ -103,13 +102,6 @@ public class RTMPModule extends ReactContextBaseJavaModule {
     public void enableAudio() {
         if (rtmpCamera1 != null && rtmpCamera1.isStreaming()) {
             rtmpCamera1.enableAudio();
-        }
-    }
-
-    @ReactMethod
-    public void enableVideo() {
-        if (rtmpCamera1 != null && rtmpCamera1.isStreaming()) {
-            rtmpCamera1.enableVideo();
         }
     }
 
@@ -130,9 +122,39 @@ public class RTMPModule extends ReactContextBaseJavaModule {
         }
     }
 
-    public static void setSurfaceView(RTMPSurfaceView surface) {
-        surfaceView = surface;
-        rtmpCamera1 = new RtmpCamera1(surfaceView, new ConnectCheckerRtmp() {
+    @ReactMethod
+    public void takePhoto(final Integer width, final Integer height, final Promise promise) {
+        if (rtmpCamera1 != null) {
+            Bitmap scaled = textureView.getBitmap(width, height);
+            if (scaled == null) {
+              promise.reject("Failed to capture bitmap from textureView");
+              return;
+            }
+            boolean hasAlpha = scaled.hasAlpha();
+            WritableNativeMap result = new WritableNativeMap();
+            WritableNativeArray pixels = new WritableNativeArray();
+            for (int x = 0; x < width; x++) {
+              for (int y = 0; y < height; y++) {
+                int pixel = scaled.getPixel(x, y);
+                int R = (pixel & 0xff0000) >> 16;
+                int G = (pixel & 0x00ff00) >> 8;
+                int B = (pixel & 0x0000ff) >> 0;
+                pixels.pushInt(R);
+                pixels.pushInt(G);
+                pixels.pushInt(B);
+              }
+            }
+            result.putInt("width", width);
+            result.putInt("height", height);
+            result.putBoolean("hasAlpha", hasAlpha);
+            result.putArray("pixels", pixels);
+            promise.resolve(result);
+        }
+    }
+
+    public static void setTextureView(RTMPTextureView surface) {
+        textureView = surface;
+        rtmpCamera1 = new RtmpCamera1(textureView, new ConnectCheckerRtmp() {
             @Override
             public void onConnectionSuccessRtmp() {
 
@@ -157,6 +179,11 @@ public class RTMPModule extends ReactContextBaseJavaModule {
             public void onAuthSuccessRtmp() {
 
             }
+
+            @Override
+            public void onNewBitrateRtmp(long bitrate) {
+
+            }
         });
 
         isSurfaceCreated = true;
@@ -165,7 +192,7 @@ public class RTMPModule extends ReactContextBaseJavaModule {
         }
     }
 
-    public static void destroySurfaceView() {
+    public static void destroyTextureView() {
         if (rtmpCamera1 != null && rtmpCamera1.isStreaming()) {
             rtmpCamera1.stopStream();
             rtmpCamera1 = null;

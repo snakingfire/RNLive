@@ -17,5 +17,5 @@ android {
 
 dependencies {
     compile "com.facebook.react:react-native:+"
-    compile 'com.github.pedroSG94.rtmp-rtsp-stream-client-java:rtplibrary:1.3.1'
+    compile 'com.github.pedroSG94.rtmp-rtsp-stream-client-java:rtplibrary:1.8.4'
 }
