@@ -71,6 +71,13 @@ public class RTMPModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public void startPreview(Integer camFace, Integer width, Integer height) {
+        if (rtmpCamera1 != null) {
+            rtmpCamera1.startPreview(camFace, width, height);
+        }
+    }
+
+    @ReactMethod
     public void stopPreview() {
         if (rtmpCamera1 != null) {
             rtmpCamera1.stopPreview();
