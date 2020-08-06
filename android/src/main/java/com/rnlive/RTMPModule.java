@@ -11,22 +11,28 @@ import com.facebook.react.bridge.WritableNativeMap;
 import com.pedro.rtplibrary.rtmp.RtmpCamera1;
 import com.pedro.rtplibrary.view.TakePhotoCallback;
 import com.pedro.encoder.input.video.CameraHelper;
-
+import com.pedro.rtplibrary.view.OpenGlView;
 import net.ossrs.rtmp.ConnectCheckerRtmp;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class RTMPModule extends ReactContextBaseJavaModule {
-    private static RTMPTextureView textureView;
+    private static OpenGlView openGlView;
     private static RtmpCamera1 rtmpCamera1;
     private static boolean isSurfaceCreated;
     private static Promise whenReadyPromise;
+    private ReactApplicationContext context;
 
     public RTMPModule(ReactApplicationContext reactContext) {
         super(reactContext);
+        context = reactContext;
     }
 
     @Override
@@ -125,36 +131,42 @@ public class RTMPModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void takePhoto(final Integer width, final Integer height, final Promise promise) {
         if (rtmpCamera1 != null) {
-            Bitmap scaled = textureView.getBitmap(width, height);
-            if (scaled == null) {
-              promise.reject("Failed to capture bitmap from textureView");
-              return;
-            }
-            boolean hasAlpha = scaled.hasAlpha();
-            WritableNativeMap result = new WritableNativeMap();
-            WritableNativeArray pixels = new WritableNativeArray();
-            for (int x = 0; x < width; x++) {
-              for (int y = 0; y < height; y++) {
-                int pixel = scaled.getPixel(x, y);
-                int R = (pixel & 0xff0000) >> 16;
-                int G = (pixel & 0x00ff00) >> 8;
-                int B = (pixel & 0x0000ff) >> 0;
-                pixels.pushInt(R);
-                pixels.pushInt(G);
-                pixels.pushInt(B);
+          System.out.println("Trying to get bitmap");
+          rtmpCamera1.getGlInterface().takePhoto(new TakePhotoCallback() {
+            @Override
+            public void onTakePhoto(Bitmap bitmap) {
+              Bitmap scaled = Bitmap.createScaledBitmap(bitmap, width, height, true);
+              if (scaled == null) {
+                promise.reject("Failed to capture bitmap from textureView");
+                return;
               }
+              boolean hasAlpha = scaled.hasAlpha();
+              WritableNativeMap result = new WritableNativeMap();
+              WritableNativeArray pixels = new WritableNativeArray();
+              for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                  int pixel = scaled.getPixel(x, y);
+                  int R = Color.red(pixel);
+                  int G = Color.green(pixel);
+                  int B = Color.blue(pixel);
+                  pixels.pushInt(R);
+                  pixels.pushInt(G);
+                  pixels.pushInt(B);
+                }
+              }
+              result.putInt("width", width);
+              result.putInt("height", height);
+              result.putBoolean("hasAlpha", hasAlpha);
+              result.putArray("pixels", pixels);
+              promise.resolve(result);
             }
-            result.putInt("width", width);
-            result.putInt("height", height);
-            result.putBoolean("hasAlpha", hasAlpha);
-            result.putArray("pixels", pixels);
-            promise.resolve(result);
+          });
         }
     }
 
-    public static void setTextureView(RTMPTextureView surface) {
-        textureView = surface;
-        rtmpCamera1 = new RtmpCamera1(textureView, new ConnectCheckerRtmp() {
+    public static void setOpenGlView(OpenGlView view) {
+        openGlView = view;
+        rtmpCamera1 = new RtmpCamera1(openGlView, new ConnectCheckerRtmp() {
             @Override
             public void onConnectionSuccessRtmp() {
 
@@ -192,12 +204,12 @@ public class RTMPModule extends ReactContextBaseJavaModule {
         }
     }
 
-    public static void destroyTextureView() {
+    public static void destroyOpenGlView() {
         if (rtmpCamera1 != null && rtmpCamera1.isStreaming()) {
             rtmpCamera1.stopStream();
         }
         rtmpCamera1 = null;
-        textureView = null;
+        openGlView = null;
         isSurfaceCreated = false;
     }
 }
