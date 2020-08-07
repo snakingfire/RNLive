@@ -143,8 +143,8 @@ public class RTMPModule extends ReactContextBaseJavaModule {
               boolean hasAlpha = scaled.hasAlpha();
               WritableNativeMap result = new WritableNativeMap();
               WritableNativeArray pixels = new WritableNativeArray();
-              for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
+              for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
                   int pixel = scaled.getPixel(x, y);
                   int R = Color.red(pixel);
                   int G = Color.green(pixel);
