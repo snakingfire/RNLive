@@ -98,13 +98,6 @@ public class RTMPModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void stopPreview() {
-        if (rtmpCamera1 != null) {
-            rtmpCamera1.stopPreview();
-        }
-    }
-
-    @ReactMethod
     public void disableAudio() {
         if (rtmpCamera1 != null && rtmpCamera1.isStreaming()) {
             rtmpCamera1.disableAudio();
