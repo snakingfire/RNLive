@@ -98,6 +98,13 @@ public class RTMPModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public void stopPreview() {
+        if (rtmpCamera1 != null) {
+            rtmpCamera1.stopPreview();
+        }
+    }
+
+    @ReactMethod
     public void disableAudio() {
         if (rtmpCamera1 != null && rtmpCamera1.isStreaming()) {
             rtmpCamera1.disableAudio();
@@ -131,7 +138,6 @@ public class RTMPModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void takePhoto(final Integer width, final Integer height, final Promise promise) {
         if (rtmpCamera1 != null) {
-          System.out.println("Trying to get bitmap");
           rtmpCamera1.getGlInterface().takePhoto(new TakePhotoCallback() {
             @Override
             public void onTakePhoto(Bitmap scaled) {
