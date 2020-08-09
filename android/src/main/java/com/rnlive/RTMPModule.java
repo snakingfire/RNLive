@@ -134,8 +134,8 @@ public class RTMPModule extends ReactContextBaseJavaModule {
           System.out.println("Trying to get bitmap");
           rtmpCamera1.getGlInterface().takePhoto(new TakePhotoCallback() {
             @Override
-            public void onTakePhoto(Bitmap bitmap) {
-              Bitmap scaled = Bitmap.createScaledBitmap(bitmap, width, height, true);
+            public void onTakePhoto(Bitmap scaled) {
+              // Bitmap scaled = Bitmap.createScaledBitmap(bitmap, width, height, true);
               if (scaled == null) {
                 promise.reject("Failed to capture bitmap from textureView");
                 return;
@@ -160,7 +160,7 @@ public class RTMPModule extends ReactContextBaseJavaModule {
               result.putArray("pixels", pixels);
               promise.resolve(result);
             }
-          });
+          }, width, height);
         }
     }
 
