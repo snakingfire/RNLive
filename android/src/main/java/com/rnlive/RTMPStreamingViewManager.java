@@ -27,18 +27,16 @@ public class RTMPStreamingViewManager extends SimpleViewManager<View> implements
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        RTMPModule.setOpenGlView(openGlView);
+      RTMPModule.setOpenGlView(openGlView);
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         RTMPModule.destroyOpenGlView();
-        surfaceHolder = null;
-        openGlView = null;
+        openGlView.surfaceDestroyed(holder);
     }
 }

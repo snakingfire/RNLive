@@ -52,9 +52,9 @@ public class RTMPModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void startStream(String rtmpUrl, Integer width, Integer height, Promise promise) {
+    public void startStream(String rtmpUrl, Integer width, Integer height, Integer bitrate, Promise promise) {
         if (isSurfaceCreated) {
-            if (rtmpCamera1 != null && !rtmpCamera1.isStreaming() && rtmpCamera1.prepareAudio() && rtmpCamera1.prepareVideo(width, height, 30, 500000, false, 90)) {
+            if (rtmpCamera1 != null && !rtmpCamera1.isStreaming() && rtmpCamera1.prepareAudio() && rtmpCamera1.prepareVideo(width, height, 30, bitrate, false, 90)) {
                 rtmpCamera1.startStream(rtmpUrl);
             } else {
                 Toast.makeText(getReactApplicationContext(), "Failed to preparing RTMP builder.", Toast.LENGTH_SHORT).show();
@@ -206,6 +206,9 @@ public class RTMPModule extends ReactContextBaseJavaModule {
     public static void destroyOpenGlView() {
         if (rtmpCamera1 != null && rtmpCamera1.isStreaming()) {
             rtmpCamera1.stopStream();
+        }
+        if (rtmpCamera1 != null) {
+          rtmpCamera1.stopPreview();
         }
         rtmpCamera1 = null;
         openGlView = null;
